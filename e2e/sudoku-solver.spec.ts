@@ -201,6 +201,41 @@ test.describe('Scenario 5 — Reset a puzzle', () => {
     await expect(page.locator('.sudoku-cell.solver-filled')).toHaveCount(0);
     await expect(page.locator('#sudoku-cell-0')).toHaveText(originalFirstCell ?? '');
   });
+
+  test('reset also discards digits manually typed into an example puzzle (US2/AC4)', async ({ page }) => {
+    await page.goto('/');
+
+    // Find an empty (non-given) cell on the default example puzzle and type into it directly.
+    const emptyIndex = await page
+      .locator('.sudoku-cell')
+      .evaluateAll((cells) => cells.findIndex((cell) => (cell.textContent ?? '').trim() === ''));
+    await enterDigit(page, emptyIndex, 5);
+    await expect(page.locator(`#sudoku-cell-${emptyIndex}`)).toHaveText('5');
+
+    await page.getByRole('button', { name: 'Reset' }).click();
+
+    // The manually entered digit is discarded; the cell returns to empty.
+    await expect(page.locator(`#sudoku-cell-${emptyIndex}`)).toHaveText('');
+    await expect(page.locator('.sudoku-cell.given')).not.toHaveCount(0);
+  });
+
+  test('reset on a from-scratch custom puzzle clears the entire grid (US3/AC5)', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Start Custom Puzzle' }).click();
+
+    for (const [index, digit] of EASY_1_GIVENS) {
+      await enterDigit(page, index, digit);
+    }
+    expect(await countEmptyCells(page)).toBe(81 - EASY_1_GIVENS.length);
+
+    await page.getByRole('button', { name: 'Reset' }).click();
+
+    // A from-scratch custom puzzle has no givens of its own, so reset clears everything.
+    await expect(async () => {
+      expect(await countEmptyCells(page)).toBe(81);
+    }).toPass({ timeout: 3000 });
+    await expect(page.locator('.sudoku-cell.given')).toHaveCount(0);
+  });
 });
 
 test.describe('No login is ever required (FR-008, SC-005)', () => {

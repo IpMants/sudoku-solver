@@ -298,6 +298,12 @@ With multiple developers:
 
 ---
 
+## Phase 13: Convergence
+
+- [X] T055 Extend the e2e Reset test suite in `e2e/sudoku-solver.spec.ts` (Scenario 5) to cover: (a) manually typing a digit into an empty/non-given cell of an example puzzle, without solving, then clicking "Reset" and confirming that digit is cleared back to empty while original given digits remain; and (b) starting a custom puzzle from scratch, typing given digits, then clicking "Reset" and confirming the board returns to a fully empty 9x9 grid, per FR-009 / User Story 2 Acceptance Scenario 4 / User Story 3 Acceptance Scenario 5 (partial)
+
+---
+
 ## Notes
 
 - [P] tasks = different files, no dependencies
