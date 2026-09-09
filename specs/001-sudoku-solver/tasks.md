@@ -288,6 +288,16 @@ With multiple developers:
 
 ---
 
+## Phase 12: Convergence
+
+- [X] T052 Fix `PuzzleStore.reset()` in `src/app/core/state/puzzle-store.ts` to clear every cell whose `origin !== 'given'` back to `{ value: null, origin: 'empty' }` (previously only cleared `'solver-filled'` cells, or fully cleared only when `source === 'custom'`), so digits the user types manually into an example puzzle's empty cells are also discarded on reset, matching the clarified FR-009 (partial)
+- [X] T053 [P] Add a unit test in `src/app/core/state/puzzle-store.spec.ts` covering reset on an example puzzle after a manually user-entered (non-solver-filled) digit, asserting it is cleared back to `'empty'` while original `'given'` cells are preserved, per FR-009 / User Story 2 Acceptance Scenario 4 (missing)
+- [X] T054 [P] Update `specs/001-sudoku-solver/contracts/puzzle-store.md`'s `reset()` contract doc and `data-model.md`'s `Puzzle` state-transition/validation-rules text to describe the origin-based clearing rule (clear all `origin !== 'given'` cells, from any status) instead of the earlier solver-filled-only / custom-only wording, per FR-009 (partial)
+
+**Checkpoint**: "Reset" now uniformly discards every non-given digit (solver-filled or manually user-entered) on both example and custom puzzles, matching the clarified FR-009 and its Edge Cases, with unit-test and design-doc coverage in place.
+
+---
+
 ## Notes
 
 - [P] tasks = different files, no dependencies
