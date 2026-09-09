@@ -104,6 +104,15 @@ Each scenario below maps to a user story and its acceptance scenarios in
 1. With any puzzle partially or fully solved, trigger the reset action.
 2. **Expect**: the board returns to that puzzle's original given digits only,
    discarding any solver-filled or user-entered digits (FR-009).
+3. With an example puzzle displayed, manually type a digit into one of its
+   empty (non-given) cells without using a solve action, then trigger reset.
+4. **Expect**: that manually entered digit is cleared back to empty, leaving
+   only the example's original given digits (FR-009).
+5. With a custom puzzle being entered from scratch (some given digits typed
+   in, none via an example), trigger reset.
+6. **Expect**: the board returns to a fully empty 9x9 grid, since a
+   from-scratch custom puzzle has no original given digits of its own
+   (FR-009).
 
 ### Scenario 6 — See which cell is about to be changed (User Story 5, FR-013)
 

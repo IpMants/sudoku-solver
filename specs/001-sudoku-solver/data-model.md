@@ -48,7 +48,7 @@ invalid --[conflict resolved]--> unsolved
 unsolved --[Solve All / Solve Next Digit found no solution]--> unsolvable
 unsolved --[Solve Next Digit fills a cell, empties remain]--> unsolved
 unsolved --[Solve All, or last empty cell filled via Solve Next Digit]--> solved
-solved --[reset]--> unsolved (original given digits restored)
+solved --[reset]--> unsolved (all non-given digits cleared)
 any state --[select different example / start new custom]--> unsolved (new puzzle)
 ```
 
@@ -65,6 +65,12 @@ any state --[select different example / start new custom]--> unsolved (new puzzl
 - At most one cell may be selected at a time: `selectedIndex`, when present,
   MUST reference exactly one valid cell index (0-80); selecting a different
   cell overwrites it rather than tracking a set (FR-013).
+- "Reset" MUST clear every cell whose `origin !== 'given'` back to
+  `{ value: null, origin: 'empty' }`, regardless of the current `status`
+  (`invalid`, `unsolved`, `unsolvable`, or `solved`) and regardless of whether
+  that cell's digit came from solving or from manual user entry (FR-009). For
+  a `source === 'custom'` puzzle, no cell is ever `'given'`, so reset clears
+  the entire grid.
 
 ### ExamplePuzzle
 
@@ -89,7 +95,8 @@ FR-012).
 
 - A `Puzzle` is composed of 81 `Cell` entries (1 Puzzle : 81 Cells, embedded).
 - A `Puzzle` with `source === 'example'` references exactly one `ExamplePuzzle`
-  via `exampleId`, used to restore given digits on reset (FR-009) or when the
+  via `exampleId`, used to restore given digits on reset (FR-009, clearing any
+  solver-filled or manually user-entered digits in other cells) or when the
   same example is re-selected (Edge Cases).
 - `ExamplePuzzle` entries are independent of any `Puzzle` in play; selecting one
   creates a new `Puzzle` seeded from its `givens` (FR-002).
