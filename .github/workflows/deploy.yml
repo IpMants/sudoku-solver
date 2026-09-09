@@ -35,22 +35,26 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # `npm ci` intermittently fails with npm's own "Exit handler never
-        # called!" bug (npm/cli#7657 and related issues) — a known,
-        # non-deterministic npm defect unrelated to this project's
-        # dependencies. Retrying a few times works around it without masking
-        # a real install failure (a persistent dependency/lockfile problem
-        # will still fail all three attempts).
+        # `npm ci` intermittently hits npm's own "Exit handler never called!"
+        # bug (npm/cli#7657 and related issues): a known, non-deterministic
+        # npm defect that leaves node_modules incompletely populated (e.g.
+        # missing node_modules/.bin/ng) while npm itself still exits with
+        # code 0. Because the exit code lies, we can't rely on it — instead
+        # verify the Angular CLI binary actually got installed, and retry
+        # the whole install (after wiping node_modules) if it didn't.
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            if npm ci --no-audit --no-fund; then
+            rm -rf node_modules
+            npm ci --no-audit --no-fund || true
+            if [ -x node_modules/.bin/ng ]; then
+              echo "Dependencies installed successfully (attempt $attempt/3)."
               exit 0
             fi
-            echo "npm ci failed (attempt $attempt/3), retrying in 10s..."
+            echo "npm ci did not produce a working install (attempt $attempt/3), retrying in 10s..."
             sleep 10
           done
-          echo "npm ci failed after 3 attempts" >&2
+          echo "npm ci failed to produce a working install after 3 attempts" >&2
           exit 1
 
       - name: Determine base href
