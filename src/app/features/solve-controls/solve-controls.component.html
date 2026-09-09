@@ -1,0 +1,31 @@
+<ng-container *ngIf="puzzle$ | async as puzzle">
+  <div class="solve-controls">
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      [disabled]="puzzle.status === 'invalid' || puzzle.status === 'solving'"
+      (click)="onSolveAll()"
+    >
+      <mat-spinner *ngIf="puzzle.status === 'solving'" diameter="18" class="solving-spinner"></mat-spinner>
+      Solve All
+    </button>
+    <button
+      mat-raised-button
+      type="button"
+      [disabled]="puzzle.status === 'invalid' || puzzle.status === 'solving' || puzzle.status === 'solved'"
+      (click)="onSolveNextDigit()"
+    >
+      Solve Next Digit
+    </button>
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="puzzle.status === 'solving'"
+      (click)="onReset()"
+    >
+      Reset
+    </button>
+  </div>
+</ng-container>
+

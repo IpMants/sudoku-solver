@@ -1,0 +1,12 @@
+.solve-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.solving-spinner {
+  display: inline-block;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}

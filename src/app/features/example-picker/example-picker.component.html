@@ -1,0 +1,16 @@
+<!--
+  Lists every bundled example puzzle so the user can load a specific one
+  onto the board (FR-002, FR-012). Selecting an item — including the one
+  currently displayed — replaces the board with that example's given
+  digits, discarding any in-progress solving (spec.md US2).
+-->
+<mat-nav-list aria-label="Example puzzles">
+  <h3 matSubheader>Example Puzzles</h3>
+  @for (example of examples; track example.id) {
+    <a mat-list-item tabindex="0" (click)="select(example)" (keyup.enter)="select(example)">
+      <span matListItemIcon class="example-picker__icon" aria-hidden="true">&#9638;</span>
+      <span matListItemTitle>{{ example.label }}</span>
+      <span matListItemLine>{{ example.difficulty }}</span>
+    </a>
+  }
+</mat-nav-list>

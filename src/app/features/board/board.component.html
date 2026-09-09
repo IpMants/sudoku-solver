@@ -1,0 +1,49 @@
+<ng-container *ngIf="puzzle$ | async as puzzle">
+  <div
+    class="sudoku-grid"
+    role="grid"
+    aria-label="Sudoku puzzle grid, 9 rows by 9 columns"
+    tabindex="-1"
+    (keydown)="onGridKeydown($event)"
+  >
+    <div *ngFor="let row of [0, 1, 2, 3, 4, 5, 6, 7, 8]" class="sudoku-row" role="row">
+      <button
+        *ngFor="let col of [0, 1, 2, 3, 4, 5, 6, 7, 8]; trackBy: trackByIndex"
+        type="button"
+        class="sudoku-cell"
+        [id]="cellElementId(row * 9 + col)"
+        role="gridcell"
+        [attr.aria-rowindex]="row + 1"
+        [attr.aria-colindex]="col + 1"
+        [attr.aria-label]="
+          (puzzle.cells[row * 9 + col].value ?? 'empty') +
+          (puzzle.cells[row * 9 + col].origin === 'given' ? ', given digit' : '') +
+          (puzzle.cells[row * 9 + col].hasConflict ? ', conflicting digit' : '')
+        "
+        [attr.aria-invalid]="puzzle.cells[row * 9 + col].hasConflict || null"
+        [attr.aria-selected]="puzzle.selectedIndex === row * 9 + col ? 'true' : 'false'"
+        [tabindex]="row * 9 + col === focusedIndex ? 0 : -1"
+        [ngClass]="{
+          given: puzzle.cells[row * 9 + col].origin === 'given',
+          'solver-filled': puzzle.cells[row * 9 + col].origin === 'solver-filled',
+          conflict: puzzle.cells[row * 9 + col].hasConflict,
+          'just-filled': puzzle.lastFilledIndex === row * 9 + col,
+          selected: puzzle.selectedIndex === row * 9 + col,
+          'box-right-border': col === 2 || col === 5,
+          'box-bottom-border': row === 2 || row === 5
+        }"
+        (focus)="selectCell(row * 9 + col)"
+      >
+        {{ puzzle.cells[row * 9 + col].value ?? '' }}
+      </button>
+    </div>
+  </div>
+
+  <p *ngIf="puzzle.status === 'unsolvable'" role="alert" class="unsolvable-message">
+    No solution exists for this puzzle. Try resetting or entering a different set of digits.
+  </p>
+
+  <!-- T035: ARIA live region announcing solve-fill and conflict-state changes for screen reader users. -->
+  <p class="sr-only" aria-live="polite">{{ liveMessage }}</p>
+</ng-container>
+

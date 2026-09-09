@@ -1,0 +1,97 @@
+.sudoku-grid {
+  display: inline-block;
+  border: 2px solid #333;
+  max-width: 100%;
+}
+
+.sudoku-row {
+  display: flex;
+}
+
+.sudoku-cell {
+  /* T036: scales down on narrow viewports so all 9 columns fit without
+     horizontal scrolling, while staying comfortably tappable on desktop. */
+  width: clamp(2rem, 9vw, 2.5rem);
+  height: clamp(2rem, 9vw, 2.5rem);
+  box-sizing: border-box;
+  border: 1px solid #999;
+  background: #fff;
+  font-size: clamp(0.9rem, 4vw, 1.1rem);
+  text-align: center;
+  cursor: default;
+  padding: 0;
+
+  &.given {
+    font-weight: 700;
+    color: #111;
+  }
+
+  &.solver-filled {
+    color: #1565c0;
+    font-weight: 500;
+  }
+
+  &.conflict {
+    background: #ffebee;
+    color: #c62828;
+  }
+
+  /* FR-013 / US5: persistent marker for the single currently "selected"
+     cell (click or keyboard focus) — an inset box-shadow layers cleanly on
+     top of the given/solver-filled/conflict background colors above, so the
+     selection marking stays clearly distinguishable no matter which other
+     state the cell is in, and survives a solver fill on the selected cell. */
+  &.selected {
+    box-shadow: inset 0 0 0 3px #f9a825;
+  }
+
+  /* T027: brief highlight on the cell most recently filled by "Solve Next
+     Digit" (US4, SC-003) — animation-fill-mode keeps the end state so no
+     JS timer is needed to remove the class. */
+  &.just-filled {
+    animation: just-filled-flash 1.2s ease-out;
+    animation-fill-mode: forwards;
+  }
+
+  &.box-right-border {
+    border-right-width: 3px;
+    border-right-color: #333;
+  }
+
+  &.box-bottom-border {
+    border-bottom-width: 3px;
+    border-bottom-color: #333;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #1565c0;
+    outline-offset: -2px;
+  }
+}
+
+.unsolvable-message {
+  color: #c62828;
+  font-weight: 500;
+}
+
+/* Visually hidden but accessible to screen readers (T035 live region). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes just-filled-flash {
+  0% {
+    background: #c8e6c9;
+  }
+  100% {
+    background: transparent;
+  }
+}

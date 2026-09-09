@@ -1,0 +1,73 @@
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* Base page layout shared by the app shell (T012); feature components add
+   their own layout within this container. Responsive breakpoints for the
+   board/example-picker/solve-controls are refined in Polish (T036). */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Two-column layout added in US2 (T021-T022): the example picker sits
+   alongside the board/controls. Stacks vertically on narrow viewports;
+   full responsive polish happens in T036. */
+.app-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  align-items: flex-start;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.app-sidebar {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* T036: responsive layout — below 700px, the sidebar (example picker +
+   custom-puzzle button) stacks above the board instead of sitting beside
+   it, and the shell drops its side padding so the board has maximum room
+   on small/mobile viewports. */
+@media (max-width: 700px) {
+  .app-shell {
+    padding: 0.5rem;
+  }
+
+  .app-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .app-sidebar {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 320px;
+  }
+}

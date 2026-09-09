@@ -1,0 +1,16 @@
+<main class="app-shell">
+  <h1>{{ title }}</h1>
+  <div class="app-layout">
+    <div class="app-sidebar">
+      <app-example-picker></app-example-picker>
+      <button mat-stroked-button type="button" class="custom-puzzle-button" (click)="onStartCustomPuzzle()">
+        Start Custom Puzzle
+      </button>
+    </div>
+    <div class="app-main">
+      <app-board></app-board>
+      <app-solve-controls></app-solve-controls>
+    </div>
+  </div>
+</main>
+<router-outlet />

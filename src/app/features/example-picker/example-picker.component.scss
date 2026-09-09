@@ -1,0 +1,11 @@
+// Decorative stand-in for the removed mat-icon "grid_on" (Convergence T040):
+// a plain Unicode glyph needs no external icon font, keeping the app usable
+// fully offline after the initial page load.
+.example-picker__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  opacity: 0.75;
+}
