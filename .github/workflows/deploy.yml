@@ -28,10 +28,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          # Pinned to an exact, known-stable patch (not a floating "20") to
-          # avoid the npm "Exit handler never called!" bug (npm/cli#7657)
-          # that some Node 20.x/22.x patch releases trigger under `npm ci`.
-          node-version: '20.18.1'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
