@@ -32,25 +32,27 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # `npm ci` hits npm's own "Exit handler never called!" bug
-        # (npm/cli#7657 and related issues) consistently in this
-        # environment, while npm itself still exits with code 0 (so the
-        # exit code can't be trusted) and leaves node_modules incompletely
-        # populated (e.g. missing node_modules/.bin/ng). `npm install` is
-        # widely reported to avoid this npm-ci-specific bug, so use it
-        # instead, still respecting package-lock.json versions. Verify the
-        # Angular CLI binary actually got installed and retry (after wiping
-        # node_modules) if it didn't, as a safety net.
+        # `npm ci` and plain `npm install` both hit npm's own "Exit handler
+        # never called!" bug (npm/cli#7657 and related issues) deterministically
+        # in this environment. Print the npm debug log after a failed attempt
+        # so we can see the actual underlying cause instead of guessing.
         shell: bash
         run: |
           for attempt in 1 2 3; do
             rm -rf node_modules
-            npm install --no-audit --no-fund || true
+            npm install --no-audit --no-fund --loglevel verbose || true
             if [ -x node_modules/.bin/ng ]; then
               echo "Dependencies installed successfully (attempt $attempt/3)."
               exit 0
             fi
-            echo "npm install did not produce a working install (attempt $attempt/3), retrying in 10s..."
+            echo "npm install did not produce a working install (attempt $attempt/3)."
+            latest_log=$(ls -t "$HOME"/.npm/_logs/*-debug-0.log 2>/dev/null | head -1)
+            if [ -n "$latest_log" ]; then
+              echo "----- Tail of $latest_log -----"
+              tail -n 200 "$latest_log"
+              echo "----- End of log tail -----"
+            fi
+            echo "Retrying in 10s..."
             sleep 10
           done
           echo "npm install failed to produce a working install after 3 attempts" >&2
