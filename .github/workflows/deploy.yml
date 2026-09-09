@@ -32,31 +32,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # `npm ci` and plain `npm install` both hit npm's own "Exit handler
-        # never called!" bug (npm/cli#7657 and related issues) deterministically
-        # in this environment. Print the npm debug log after a failed attempt
-        # so we can see the actual underlying cause instead of guessing.
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            rm -rf node_modules
-            npm install --no-audit --no-fund --loglevel verbose || true
-            if [ -x node_modules/.bin/ng ]; then
-              echo "Dependencies installed successfully (attempt $attempt/3)."
-              exit 0
-            fi
-            echo "npm install did not produce a working install (attempt $attempt/3)."
-            latest_log=$(ls -t "$HOME"/.npm/_logs/*-debug-0.log 2>/dev/null | head -1)
-            if [ -n "$latest_log" ]; then
-              echo "----- Tail of $latest_log -----"
-              tail -n 200 "$latest_log"
-              echo "----- End of log tail -----"
-            fi
-            echo "Retrying in 10s..."
-            sleep 10
-          done
-          echo "npm install failed to produce a working install after 3 attempts" >&2
-          exit 1
+        run: npm ci
 
       - name: Determine base href
         id: base-href
