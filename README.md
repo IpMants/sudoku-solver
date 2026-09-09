@@ -1,5 +1,7 @@
 # SudokuSolverTmp
 
+🚀 [Live Demo](https://ipmants.github.io/sudoku-solver/) — try the deployed Sudoku Solver in your browser, no installation needed.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
 
 ## Development server
