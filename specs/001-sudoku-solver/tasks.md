@@ -13,7 +13,7 @@ description: "Task list template for feature implementation"
 
 **Documentation**: Constitution Principle I ("Full Documentation", NON-NEGOTIABLE) requires "Undocumented code MUST NOT be merged." Rather than deferring all documentation to the end, each phase below ends with its own documentation subtask that adds TSDoc/inline comments to that phase's code, placed immediately before the phase's checkpoint.
 
-**Organization**: Tasks are grouped by user story (from spec.md: US1 = Instantly Solve the Default Puzzle, US2 = Choose a Specific Example Puzzle, US3 = Enter a Custom Puzzle From Scratch, US4 = Reveal the Solution One Digit at a Time, US5 = See Which Cell Is About to Be Changed) to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story (from spec.md: US1 = Instantly Solve the Default Puzzle, US2 = Choose a Specific Example Puzzle, US3 = Enter a Custom Puzzle From Scratch, US4 = Reveal the Solution One Digit at a Time, US5 = See Which Cell Is About to Be Changed, US6 = Discover the Live Demo and Project Provenance via README) to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -163,6 +163,8 @@ e2e/
 - **Polish (Phase 7)**: Depends on all four user stories being complete
 - **Convergence (Phase 8)**: Depended on Phase 1-7 already being implemented; already complete (T040-T042 done)
 - **User Story 5 (Phase 9)**: Depends on Foundational (Phase 2, for `Puzzle`/`PuzzleStore`) and on `PuzzleBoardComponent` existing (T014 from US1) to wire its click/keyboard handlers into; otherwise independent of US2/US3/US4/Convergence
+- **Convergence (Phase 10)**: Depends on Phase 9 (US5) being implemented; already complete (T048 done)
+- **User Story 6 (Phase 11)**: Documentation-only; no dependency on any other phase's code (only touches `README.md`), though it is sequenced last since it was added to the spec after the application stories
 
 ### User Story Dependencies
 
@@ -171,6 +173,7 @@ e2e/
 - **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Only depends on `SolveControlsComponent` existing (T015 from US1) to add its button; otherwise independent
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Reuses `PuzzleBoardComponent`/`SolveControlsComponent` scaffolding from US1; independently testable via its own acceptance scenarios
 - **User Story 5 (P2)**: Can start after Foundational (Phase 2) and after `PuzzleBoardComponent` exists (T014 from US1) - Adds `Puzzle.selectedIndex`, `PuzzleStore.selectCell`, and board wiring; independently testable via its own acceptance scenarios without US2/US3/US4 being complete
+- **User Story 6 (P3)**: No dependency on any other user story or on the application code at all - purely edits `README.md`; independently testable by reading the rendered file
 
 ### Within Each User Story
 
@@ -266,6 +269,22 @@ With multiple developers:
 ## Phase 10: Convergence
 
 - [X] T048 Add an e2e test covering quickstart.md Scenario 6 (cell selection) in `e2e/sudoku-solver.spec.ts` — click a cell and confirm it is marked `aria-selected="true"`/`.selected`; click a different cell and confirm the marking moves and the previous cell is no longer marked; use arrow-key navigation and confirm the marking follows keyboard focus; click "Solve Next Digit" with a cell selected and confirm the selection survives if that cell is solver-filled; select a different example, start a custom puzzle, or reset, and confirm no cell is marked selected afterward — then update quickstart.md's SC-008 checklist row to checked once the test passes, per SC-008 / US5 (missing)
+
+---
+
+## Phase 11: User Story 6 - Discover the Live Demo and Project Provenance via README (Priority: P3)
+
+**Goal**: Let a repository visitor find a working link to the deployed demo and learn that the project was generated completely with AI (GitHub Copilot) via Spec-Driven Development (SDD) using the GitHub Spec Kit framework, directly from `README.md`, per spec.md's added User Story 6 and FR-014/FR-015.
+
+**Independent Test**: Open the rendered `README.md` and confirm it contains a working link to `https://ipmants.github.io/sudoku-solver/` that opens the deployed application, and a statement crediting AI (GitHub Copilot)/SDD/GitHub Spec Kit with a working link to `https://github.github.com/spec-kit` — without needing to run or build the application (spec.md User Story 6, Acceptance Scenarios 1-3).
+
+### Implementation for User Story 6
+
+- [X] T049 [US6] Add a live demo link to `README.md` pointing to `https://ipmants.github.io/sudoku-solver/` (FR-014)
+- [X] T050 [US6] Add a statement to `README.md` crediting GitHub Copilot, Spec-Driven Development (SDD), and the GitHub Spec Kit framework, including a working link to `https://github.github.com/spec-kit` (FR-015)
+- [X] T051 [US6] Run quickstart.md Scenario 7 (open `README.md`, follow the demo link, confirm the AI/SDD statement and Spec Kit link) and check off SC-009/SC-010 in quickstart.md's Success Criteria checklist
+
+**Checkpoint**: User Story 6 is fully functional and independently testable — a repository visitor can find and follow the live demo link and read the AI/SDD provenance statement directly in `README.md`.
 
 ---
 
