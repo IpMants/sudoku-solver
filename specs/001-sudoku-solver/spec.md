@@ -172,6 +172,34 @@ the newly clicked cell and no longer appears on the previous one.
 
 ---
 
+### User Story 6 - Discover the Live Demo and Project Provenance via README (Priority: P3)
+
+A visitor browsing the project's repository (e.g., on GitHub) wants to try the
+application immediately without cloning or building it, and also wants to know
+how the project was built.
+
+**Why this priority**: This is a documentation/discoverability concern, entirely
+separate from and lower-impact than the application's solving functionality
+(User Stories 1-5). It adds transparency and easy access to a working demo but
+does not affect solver behavior.
+
+**Independent Test**: Open the rendered `README.md` (e.g., on GitHub) and confirm
+it contains a working link to the deployed demo and a statement describing how
+the project was built, without needing to run or build the application.
+
+**Acceptance Scenarios**:
+
+1. **Given** a visitor opens the repository's `README.md`, **When** they read it,
+   **Then** they find a link to the deployed demo environment.
+2. **Given** the visitor clicks the demo link, **When** the linked page loads,
+   **Then** the deployed Sudoku Solver application opens successfully.
+3. **Given** a visitor opens the repository's `README.md`, **When** they read it,
+   **Then** they find a statement that the project was generated completely with
+   AI (GitHub Copilot) using a Spec-Driven Development (SDD) approach with the
+   GitHub Spec Kit framework, with a working link to the framework's page.
+
+---
+
 ### Edge Cases
 
 - What happens when the user tries to solve a puzzle that has rule conflicts
@@ -247,6 +275,12 @@ the newly clicked cell and no longer appears on the previous one.
   marking MUST move entirely to a newly selected cell (never showing on more
   than one cell at once) and MUST be cleared whenever the displayed puzzle
   changes (new example, custom puzzle, or reset).
+- **FR-014**: The project's `README.md` MUST include a link to the deployed
+  demo environment at `https://ipmants.github.io/sudoku-solver/`.
+- **FR-015**: The project's `README.md` MUST state that the project was
+  generated completely with AI (GitHub Copilot) using a Spec-Driven Development
+  (SDD) approach with the GitHub Spec Kit framework, and MUST include a working
+  link to `https://github.github.com/spec-kit`.
 
 ### Key Entities
 
@@ -286,6 +320,11 @@ the newly clicked cell and no longer appears on the previous one.
 - **SC-008**: Users can identify which single cell will receive their next
   typed digit within 1 second of clicking or navigating to it, with never more
   than one cell shown as selected at a time.
+- **SC-009**: A visitor reading `README.md` can locate the live demo link and
+  confirm it opens the working application within 10 seconds.
+- **SC-010**: A visitor reading `README.md` can determine, within 10 seconds,
+  that the project was built entirely with AI via Spec-Driven Development, and
+  can reach the Spec Kit framework page via the provided link.
 
 ## Assumptions
 
@@ -313,3 +352,7 @@ the newly clicked cell and no longer appears on the previous one.
   concern with no persistence requirement — it does not need to be remembered
   across page reloads or puzzle changes, and only one cell can be selected at
   a time (no multi-cell selection).
+- The README requirements (FR-014, FR-015) are documentation-only concerns
+  about the project's repository presentation; they have no effect on the
+  deployed application's runtime behavior and are validated by reading the
+  rendered `README.md` rather than by exercising the application.
