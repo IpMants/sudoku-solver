@@ -2,6 +2,8 @@
 
 🚀 [Live Demo](https://ipmants.github.io/sudoku-solver/) — try the deployed Sudoku Solver in your browser, no installation needed.
 
+> 🤖 This project was generated completely with AI ([GitHub Copilot](https://github.com/features/copilot)) using a Spec-Driven Development (SDD) approach with the [GitHub Spec Kit](https://github.github.com/spec-kit) framework.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
 
 ## Development server
