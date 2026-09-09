@@ -76,6 +76,10 @@ given digits.
    solving progress is cleared.
 3. **Given** the user has selected an example puzzle, **When** they click "Solve
    All", **Then** that specific puzzle is solved correctly.
+4. **Given** the user has manually typed digits into one or more empty
+   (non-given) cells of an example puzzle, **When** they click "Reset", **Then**
+   those manually entered digits are cleared back to empty, leaving only the
+   example puzzle's original given digits.
 
 ---
 
@@ -105,6 +109,10 @@ digits for a classic puzzle, and click "Solve All" to confirm it solves correctl
 4. **Given** the user has entered given digits that make the puzzle unsolvable,
    **When** they click "Solve All", **Then** the application informs the user that
    no solution exists instead of failing silently or hanging.
+5. **Given** the user has entered given digits into a custom puzzle (with or
+   without solved digits present), **When** they click "Reset", **Then** the
+   grid returns to a fully empty 9x9 grid with no digits remaining, not merely
+   to the previously entered given digits.
 
 ---
 
@@ -216,6 +224,15 @@ the project was built, without needing to run or build the application.
   without mixing digits from the previous puzzle.
 - What happens when the user picks the same example puzzle that is already
   displayed? The application MUST reset that puzzle to its original given digits.
+- What happens when the user clicks "Reset" while entering a custom puzzle
+  (with or without solved/conflicting digits present)? The application MUST
+  clear the board to a fully empty 9x9 grid, discarding every digit the user
+  had typed, not just digits filled in by the solver.
+- What happens when the user clicks "Reset" on an example puzzle after
+  manually typing digits into some of its empty (non-given) cells, in
+  addition to or instead of using a solve action? The application MUST clear
+  those manually entered digits back to empty as well, restoring only the
+  example's original given digits.
 - What happens when the user loads a different puzzle (selects a new example,
   starts a custom puzzle, or resets) while a cell is selected? The application
   MUST clear the previous selection so no cell from the prior puzzle state
@@ -257,8 +274,17 @@ the project was built, without needing to run or build the application.
 - **FR-008**: System MUST NOT require user registration, login, sign-in, or any
   personal identification for any feature, including solving and example
   selection.
-- **FR-009**: System MUST allow the user to reset the currently displayed puzzle
-  back to its original given digits, discarding any digits filled in by solving.
+- **FR-009**: System MUST provide a "Reset" action that restores the currently
+  displayed puzzle to its original starting state, discarding every digit that
+  is not one of the puzzle's original given digits — this includes digits
+  filled in by solving AND digits the user entered manually into any
+  non-given cell: if the puzzle is a bundled example (or was loaded from
+  one), "Reset" MUST restore it to that example's original given digits,
+  clearing both solver-filled cells and any cells the user filled in
+  manually; if the puzzle is a custom puzzle being entered from scratch,
+  "Reset" MUST restore it to a fully empty 9x9 grid (clearing every digit the
+  user typed, since a from-scratch custom puzzle has no original given
+  digits of its own).
 - **FR-010**: System MUST visually distinguish original given digits from digits
   that were filled in by the solver, so users can tell what was provided versus
   solved.

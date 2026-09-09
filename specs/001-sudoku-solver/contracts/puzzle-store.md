@@ -67,7 +67,14 @@ export interface PuzzleStore {
    */
   solveNextDigit(): Promise<void>;
 
-  /** FR-009: restores the current puzzle to its original given digits. */
+  /**
+   * FR-009: restores the current puzzle to its original starting state -
+   * clears every cell that is not `origin === 'given'` back to empty. For an
+   * example puzzle this keeps the original given digits and clears both
+   * solver-filled and manually user-entered digits; for a custom puzzle
+   * (which has no `'given'` cells) this clears the entire grid back to
+   * empty.
+   */
   reset(): void;
 
   /**

@@ -166,6 +166,35 @@ describe('PuzzleStore', () => {
     });
   });
 
+  it('reset on an example puzzle also discards digits the user entered manually', () => {
+    store.loadExample('easy-1');
+    const emptyIndex = uniquelySolvablePuzzle.findIndex((v) => v === 0);
+    store.setCellValue(emptyIndex, 5); // manually fill an empty, non-given cell
+
+    store.reset();
+
+    const puzzle = snapshot();
+    expect(puzzle.cells[emptyIndex].value).toBeNull();
+    expect(puzzle.cells[emptyIndex].origin).toBe('empty');
+    puzzle.cells.forEach((cell, index) => {
+      const expected = uniquelySolvablePuzzle[index];
+      expect(cell.origin).toBe(expected === 0 ? 'empty' : 'given');
+    });
+  });
+
+  it('reset on a custom puzzle clears every user-typed digit back to a fully empty grid', () => {
+    store.startCustomPuzzle();
+    store.setCellValue(0, 5);
+    store.setCellValue(1, 3);
+
+    store.reset();
+
+    const puzzle = snapshot();
+    expect(puzzle.source).toBe('custom');
+    expect(puzzle.status).toBe('unsolved');
+    expect(puzzle.cells.every((cell) => cell.value === null && cell.origin === 'empty')).toBeTrue();
+  });
+
   // FR-013 / US5: selectCell marks the single cell the user is about to change.
   describe('selectCell', () => {
     it('marks the given cell index as selectedIndex', () => {

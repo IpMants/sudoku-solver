@@ -167,8 +167,15 @@ export class PuzzleStore {
   }
 
   /**
-   * FR-009: restores the current puzzle to its original given digits,
-   * discarding solver-filled digits. Also clears any current selection
+   * FR-009: restores the current puzzle to its original starting state,
+   * discarding every digit that is not one of the puzzle's original given
+   * digits - this includes digits filled in by solving AND digits the user
+   * entered manually into any non-given cell. For an example puzzle
+   * (`source === 'example'`), the original given digits are kept and every
+   * other cell (`'solver-filled'` or `'user-entered'`) is cleared back to
+   * empty. For a custom puzzle (`source === 'custom'`), no cell is ever
+   * `'given'`, so every cell is cleared back to a fully empty 9x9 grid (User
+   * Story 3, Acceptance Scenario 5). Also clears any current selection
    * (FR-013 / US5's Edge Cases), since resetting counts as changing the
    * displayed puzzle.
    */
@@ -176,7 +183,7 @@ export class PuzzleStore {
     const current = this.puzzle;
     const cells = this.recomputeConflicts(
       current.cells.map((cell) =>
-        cell.origin === 'solver-filled' ? { ...cell, value: null, origin: 'empty' as const } : cell,
+        cell.origin === 'given' ? cell : { ...cell, value: null, origin: 'empty' as const },
       ),
     );
     const hasConflict = cells.some((c) => c.hasConflict);
