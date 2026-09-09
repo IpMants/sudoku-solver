@@ -122,6 +122,18 @@ Each scenario below maps to a user story and its acceptance scenarios in
 10. **Expect**: no cell appears selected on the newly displayed board until the
     user makes a new selection (Edge Cases).
 
+### Scenario 7 — Discover the live demo and project provenance via README (User Story 6, FR-014/FR-015)
+
+1. Open the repository's `README.md` (e.g., on GitHub).
+2. **Expect**: a link to the deployed demo at
+   `https://ipmants.github.io/sudoku-solver/`.
+3. Click the demo link.
+4. **Expect**: the deployed Sudoku Solver application opens successfully.
+5. **Expect**: a statement that the project was generated completely with AI
+   (GitHub Copilot) using a Spec-Driven Development (SDD) approach with the
+   GitHub Spec Kit framework, with a working link to
+   `https://github.github.com/spec-kit`.
+
 ## Success criteria checklist
 
 Use this checklist alongside the scenarios above to confirm the feature meets
@@ -140,9 +152,15 @@ Use this checklist alongside the scenarios above to confirm the feature meets
       crash.
 - [X] SC-008: Exactly zero or one cell is ever shown as selected, and the
       selected cell is identifiable within ~1s of clicking/navigating to it.
+- [X] SC-009: `README.md`'s live demo link is locatable and opens the working
+      application within ~10s of reading.
+- [X] SC-010: `README.md`'s AI/SDD provenance statement and Spec Kit link are
+      locatable within ~10s of reading.
 
-All eight success criteria were validated by the automated suite in
+All ten success criteria were validated by the automated suite in
 `e2e/sudoku-solver.spec.ts` (Scenarios 1-6, run via `npm run e2e`) alongside
 the unit/component suite (`npm test`) — Scenarios 1-5 as part of
-`/speckit-implement`'s Phase 7 (T038-T039), and Scenario 6 (SC-008) as part
-of Convergence T048.
+`/speckit-implement`'s Phase 7 (T038-T039), Scenario 6 (SC-008) as part of
+Convergence T048, and Scenario 7 (SC-009/SC-010) validated by manual
+inspection of the rendered `README.md` (documentation-only, not covered by
+`e2e/sudoku-solver.spec.ts`).

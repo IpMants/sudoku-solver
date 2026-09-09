@@ -19,6 +19,14 @@ will go into (FR-013 / User Story 5); the selection persists through solver
 fills but is cleared whenever the displayed puzzle changes.
 Built with Angular, Angular Material, and TypeScript as a static client-side app
 with no backend and no login, per the project constitution.
+Separately, the repository's `README.md` MUST link to the deployed demo
+(`https://ipmants.github.io/sudoku-solver/`) and state that the project was
+generated completely with AI (GitHub Copilot) via Spec-Driven Development (SDD)
+using the GitHub Spec Kit framework, linking to
+`https://github.github.com/spec-kit` (FR-014/FR-015 / User Story 6). This is a
+documentation-only requirement with no runtime/architecture impact and is
+already implemented in `README.md`; it needs no design artifacts beyond a
+quickstart validation step.
 
 ## Technical Context
 
