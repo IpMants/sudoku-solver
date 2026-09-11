@@ -1,0 +1,26 @@
+<ng-container *ngIf="viewState$ | async as state">
+  <div
+    *ngIf="state.visible"
+    class="digit-keypad"
+    role="group"
+    aria-label="Digit entry keypad"
+  >
+    <button
+      *ngFor="let digit of digits; trackBy: trackByDigit"
+      type="button"
+      class="digit-keypad-button"
+      [attr.aria-label]="'Enter ' + digit"
+      (click)="onDigitTap(digit, state.targetCellIndex)"
+    >
+      {{ digit }}
+    </button>
+    <button
+      type="button"
+      class="digit-keypad-button digit-keypad-clear"
+      aria-label="Clear cell"
+      (click)="onClearTap(state.targetCellIndex)"
+    >
+      Clear
+    </button>
+  </div>
+</ng-container>

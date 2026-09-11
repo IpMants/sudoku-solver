@@ -1,0 +1,85 @@
+/**
+ * App shell layout.
+ *
+ * Base layout (previously duplicated in the global `src/styles.scss`;
+ * consolidated here as the single source of truth during Mobile Client
+ * Support, US1) plus the compact-viewport breakpoint (FR-001, FR-008;
+ * SC-001, SC-005): sidebar (example picker + "Start Custom Puzzle") and
+ * main content (board + solve controls) sit side-by-side above the compact
+ * breakpoint, and stack full-width below it so the grid and every control
+ * remain reachable without horizontal scrolling on phone-width viewports
+ * down to 360px, in both portrait and landscape orientation.
+ */
+@use '../styles/breakpoints';
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.app-layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.app-sidebar {
+  display: flex;
+  flex: 0 0 220px;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.custom-puzzle-button {
+  align-self: flex-start;
+}
+
+@media (max-width: breakpoints.$breakpoint-compact) {
+  /* Mobile Client Support (US1: FR-001, FR-008; SC-001, SC-005): the
+     sidebar stacks above the board instead of sitting beside it, and the
+     shell drops its side padding so the board/controls have maximum room
+     and never require horizontal scrolling down to a 360px-wide viewport.
+     Layout uses flex-direction (no fixed vh-based heights), so it stays
+     correct across a portrait/landscape rotation. */
+  .app-shell {
+    padding: 0.5rem;
+  }
+
+  .app-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .app-sidebar {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .app-main {
+    width: 100%;
+  }
+
+  .custom-puzzle-button {
+    align-self: stretch;
+  }
+}

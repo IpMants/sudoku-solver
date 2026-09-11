@@ -1,3 +1,14 @@
+/**
+ * Mobile Client Support (US1: FR-001, SC-001, SC-005): the `clamp()` cell
+ * sizing already scales with viewport width; the compact-breakpoint rule
+ * below tightens the vw share on phone-width viewports so the full 9x9
+ * grid, plus its 2px outer border, comfortably fits within a 360px-wide
+ * viewport (with the app shell's compact padding, T005) without horizontal
+ * scrolling or manual zoom, even with all 3px box-separator borders
+ * (`box-sizing: border-box` keeps those from adding extra width).
+ */
+@use '../../../styles/breakpoints';
+
 .sudoku-grid {
   display: inline-block;
   border: 2px solid #333;
@@ -20,6 +31,15 @@
   text-align: center;
   cursor: default;
   padding: 0;
+
+  @media (max-width: breakpoints.$breakpoint-compact) {
+    /* Tighter vw share than the desktop/tablet default above, so 9 cells
+       plus the grid's 2px outer border never exceed a 360px-wide viewport
+       even after accounting for the app shell's compact padding (T005). */
+    width: clamp(1.75rem, 8.5vw, 2.25rem);
+    height: clamp(1.75rem, 8.5vw, 2.25rem);
+    font-size: clamp(0.8rem, 3.6vw, 1rem);
+  }
 
   &.given {
     font-weight: 700;

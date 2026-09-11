@@ -1,0 +1,12 @@
+/**
+ * Shared responsive breakpoints for the Sudoku Solver UI.
+ *
+ * `$breakpoint-compact` is the single source of truth for the "compact
+ * viewport" threshold (phones and portrait tablets) used to decide when the
+ * app shell stacks its layout and when the on-screen digit keypad becomes
+ * available (see specs/002-mobile-client-support/research.md's
+ * CSS-breakpoint decision). `ViewportService` binds to the same pixel value
+ * via Angular CDK's `BreakpointObserver` so the CSS and TypeScript layers
+ * never drift apart.
+ */
+$breakpoint-compact: 768px;

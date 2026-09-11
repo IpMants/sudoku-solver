@@ -1,0 +1,36 @@
+/**
+ * On-screen digit keypad layout (Mobile Client Support, US2: FR-003, FR-003b,
+ * FR-004, FR-010). Rendered in normal document flow directly below the
+ * board (see `app.component.html`), rather than as a `position: fixed`
+ * overlay: an earlier fixed-panel design was found (via Playwright mobile
+ * e2e runs) to visually cover, and intercept taps intended for, the
+ * "Solve All"/"Solve Next Digit"/"Reset" buttons and other cells beneath it
+ * whenever it was open. Normal flow guarantees the keypad can never overlap
+ * any other interactive control — every other element reflows around it
+ * instead (research.md: positioning decision, revised).
+ */
+.digit-keypad {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.digit-keypad-button {
+  /* Clarifications: every keypad button MUST be at least 44x44 CSS px. */
+  min-width: 44px;
+  min-height: 44px;
+  flex: 0 0 auto;
+  font-size: 1.1rem;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.digit-keypad-clear {
+  min-width: 64px;
+  font-weight: 600;
+}
