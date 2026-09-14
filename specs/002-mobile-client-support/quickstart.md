@@ -32,14 +32,17 @@ works, then use one of the mobile-verification options below.
    and confirm the puzzle completes correctly. Rotate the viewport between
    portrait/landscape (DevTools "rotate" toggle) and confirm layout remains
    usable (FR-001, FR-008; SC-001, SC-005).
-2. **User Story 2 (Touch digit entry)**: Tap an empty, non-given cell.
-   Confirm the on-screen keypad (per `contracts/digit-keypad.md`) appears,
-   is fully on-screen, and does not obscure the selected cell. Tap a digit;
-   confirm it appears in the cell. Enter a digit that conflicts with another
-   cell in the same row/column/box; confirm the conflict highlight appears
-   immediately. Tap "Clear"; confirm the digit is removed. Tap a different
-   cell; confirm the keypad follows the new selection (FR-002–FR-006,
-   FR-003b; SC-002, SC-003).
+2. **User Story 2 (Touch digit entry)**: On the mobile-width viewport, before
+   selecting any cell, confirm the on-screen keypad (per
+   `contracts/digit-keypad.md`) is already visible but shown dimmed/disabled
+   (not tappable). Tap an empty, non-given cell; confirm the keypad becomes
+   interactive (no longer dimmed) without moving or disappearing, and does
+   not obscure the selected cell. Tap a digit; confirm it appears in the
+   cell. Enter a digit that conflicts with another cell in the same
+   row/column/box; confirm the conflict highlight appears immediately. Tap
+   "Clear"; confirm the digit is removed. Deselect the cell (tap outside the
+   grid); confirm the keypad remains visible but returns to its
+   dimmed/disabled state (FR-002–FR-006, FR-003b, FR-003c; SC-002, SC-003).
 3. **User Story 3 (Feature parity)**: On the same mobile-width viewport,
    select a different example puzzle, tap "Solve Next Digit" once, and tap
    "Reset"; confirm each behaves identically to desktop (FR-007; SC-004).

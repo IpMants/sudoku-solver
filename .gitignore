@@ -46,3 +46,6 @@ Thumbs.db
 /playwright-report
 /blob-report
 /playwright/.cache
+
+# Spec Kit tool cache (local extension catalog cache, not project source)
+/.specify/extensions/.cache

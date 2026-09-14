@@ -34,3 +34,15 @@
   min-width: 64px;
   font-weight: 600;
 }
+
+/**
+ * Dimmed visual state applied whenever the keypad is visible but not
+ * interactive (no editable cell selected) — 2026-09-14 Clarification,
+ * FR-003c. Buttons also carry the native `disabled` attribute (bound in
+ * digit-keypad.component.html), which already prevents pointer interaction;
+ * this class only supplies the visual dimming on top of that.
+ */
+.digit-keypad-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -36,6 +36,21 @@
   Yes — require ARIA/screen-reader labeling for the mobile keypad and cells,
   consistent with the existing accessibility principle.
 
+### Session 2026-09-14
+
+- Q: When the on-screen keypad is always visible on mobile but no editable
+  cell is currently selected, what should tapping a digit or clear button do? →
+  A: Render the keypad always, but visually dim it and make buttons
+  non-interactive (disabled) until a cell is selected.
+
+### Session 2026-09-14 (follow-up)
+
+- Q: Should a tap on a disabled/dimmed keypad button (no editable cell
+  selected) count toward SC-003's "95% of single-tap digit entries register
+  correctly on the first tap" metric? → A: Exclude disabled-state taps
+  entirely from the metric; SC-003 only measures taps on an interactive
+  (enabled) keypad.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -100,23 +115,31 @@ custom puzzle.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user taps an empty (non-given) cell on a mobile browser, **When**
-   the cell becomes selected, **Then** an on-screen digit keypad (1-9 and a clear
-   option) appears and is fully reachable and tappable on the screen.
-2. **Given** the on-screen keypad is visible, **When** the user taps a digit,
-   **Then** that digit is entered into the selected cell and the keypad remains
-   available for entering the next cell.
-3. **Given** a user has entered a digit into a cell that conflicts with another
+1. **Given** a user opens the application on a mobile browser, **When** the
+   page finishes loading (before any cell is selected), **Then** the on-screen
+   digit keypad (1-9 and a clear option) is already visible on screen, shown in
+   a dimmed/disabled state that signals it is not yet interactive.
+2. **Given** a user taps an empty (non-given) cell on a mobile browser, **When**
+   the cell becomes selected, **Then** the already-visible on-screen keypad
+   becomes active (no longer dimmed) and fully reachable and tappable on the
+   screen.
+3. **Given** the on-screen keypad is active for a selected cell, **When** the
+   user taps a digit, **Then** that digit is entered into the selected cell and
+   the keypad remains available for entering the next cell.
+4. **Given** a user has entered a digit into a cell that conflicts with another
    digit in the same row, column, or box, **When** the conflicting digit is
    entered, **Then** the conflict is highlighted immediately, matching the
    real-time validation behavior available on desktop.
-4. **Given** a user taps the clear option on the on-screen keypad while a
+5. **Given** a user taps the clear option on the on-screen keypad while a
    non-given cell is selected, **When** the option is tapped, **Then** the
    digit in that cell is removed.
-5. **Given** a user is entering digits on a mobile browser, **When** they tap
-   outside the grid or select a different cell, **Then** the keypad follows the
-   newly selected cell (or hides if no cell is selected) without leaving stray
+6. **Given** a user is entering digits on a mobile browser, **When** they tap
+   outside the grid or deselect the current cell, **Then** the keypad remains
+   visible but returns to its dimmed/disabled state, without leaving stray
    input elements on screen.
+7. **Given** a user taps a given (non-editable) cell on a mobile browser,
+   **When** the cell becomes selected, **Then** the keypad remains visible but
+   stays in its dimmed/disabled state, since the cell cannot be edited.
 
 ---
 
@@ -151,9 +174,11 @@ produces the same result as on desktop.
 
 ### Edge Cases
 
-- What happens when the on-screen keypad would overlap the selected cell or run
-  off the edge of a very small screen? The keypad must reposition itself so it
-  never covers the selected cell and stays fully within the visible viewport.
+- What happens when the on-screen keypad is rendered alongside the selected
+  cell on a very small screen? The keypad MUST be laid out in normal document
+  flow (not floating/overlaying) so it never covers the selected cell or any
+  other control, and the full layout (grid + keypad) MUST remain within the
+  visible viewport without clipping.
 - How does the system handle a mobile browser's own virtual keyboard appearing
   unexpectedly (e.g., due to a focused text input)? The application must not
   rely on the device's native virtual keyboard for digit entry, so it should not
@@ -179,10 +204,11 @@ produces the same result as on desktop.
   without requiring horizontal scrolling or manual zooming.
 - **FR-002**: System MUST allow users to select any non-given cell via a single
   tap on a mobile browser.
-- **FR-003**: System MUST present an on-screen touch keypad (digits 1-9 plus a
-  clear/erase option) whenever a non-given cell is selected on a mobile browser,
-  so digit entry does not depend on the device's native keyboard. Each keypad
-  button MUST have a tappable target of at least 44x44 CSS pixels.
+- **FR-003**: System MUST always present an on-screen touch keypad (digits 1-9
+  plus a clear/erase option) on a mobile browser, regardless of whether a cell
+  is currently selected, so digit entry does not depend on the device's native
+  keyboard and users always know the alternative entry method is available.
+  Each keypad button MUST have a tappable target of at least 44x44 CSS pixels.
 - **FR-003a**: System MUST continue to accept digit entry via a physical or
   paired keyboard on mobile browsers when one is attached, in addition to the
   on-screen keypad; the two input methods MUST be able to update the same
@@ -191,6 +217,11 @@ produces the same result as on desktop.
   (including cell position and current value) to assistive technology via
   semantic HTML/ARIA labeling on mobile browsers, consistent with the
   accessibility requirements already applied on desktop.
+- **FR-003c**: System MUST render the on-screen keypad in a visually dimmed,
+  non-interactive (disabled) state whenever no editable (non-given) cell is
+  currently selected, and MUST switch it to its active, interactive state
+  immediately when an editable cell becomes selected (and back to dimmed when
+  deselected or when a given cell is selected).
 - **FR-004**: System MUST enter the tapped digit into the currently selected
   cell immediately upon a keypad tap, and MUST clear a cell's digit when the
   keypad's clear option is tapped.
@@ -216,8 +247,10 @@ produces the same result as on desktop.
 - **Selected Cell**: The sudoku cell currently awaiting digit input on the
   active client (desktop or mobile); determines which cell the on-screen
   keypad's taps apply to on mobile.
-- **On-Screen Keypad**: A touch-oriented control surfaced on mobile browsers
-  offering digits 1-9 and a clear action, tied to the currently selected cell.
+- **On-Screen Keypad**: A touch-oriented control always surfaced on mobile
+  browsers, offering digits 1-9 and a clear action; interactive (active) only
+  while an editable cell is selected, otherwise shown in a dimmed/disabled
+  state, tied to the currently selected cell when active.
 
 ## Success Criteria *(mandatory)*
 
@@ -232,7 +265,9 @@ produces the same result as on desktop.
 - **SC-003**: 95% of single-tap digit entries on a mobile browser register
   correctly on the first tap on keypad buttons sized at least 44x44 CSS pixels,
   with conflicts highlighted immediately (within the same interaction) when
-  they occur.
+  they occur. This metric applies only to taps on an interactive (enabled)
+  keypad; taps on the keypad while it is in its dimmed/disabled state (no
+  editable cell selected) are excluded from this measurement.
 - **SC-004**: All existing desktop features (example selection, Solve All,
   Solve Next Digit, Reset) remain available and produce identical outcomes when
   used from a mobile browser.

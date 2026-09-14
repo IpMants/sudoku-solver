@@ -58,12 +58,16 @@ test.describe('US2 — Enter custom digits by touch', () => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Start Custom Puzzle' }).click();
 
-    const cell = page.locator('#sudoku-cell-0');
-    await cell.tap();
-
+    // 2026-09-14 Clarification (FR-003/FR-003c): the keypad is already
+    // visible (but disabled) before any cell is selected.
     const keypad = page.locator('.digit-keypad');
     await expect(keypad).toBeVisible();
     await expect(page.getByRole('group', { name: 'Digit entry keypad' })).toBeVisible();
+    await expect(keypad.getByRole('button', { name: 'Enter 5' })).toBeDisabled();
+
+    const cell = page.locator('#sudoku-cell-0');
+    await cell.tap();
+    await expect(keypad.getByRole('button', { name: 'Enter 5' })).toBeEnabled();
 
     await keypad.getByRole('button', { name: 'Enter 5' }).tap();
     await expect(cell).toHaveText('5');
@@ -98,22 +102,27 @@ test.describe('US2 — Enter custom digits by touch', () => {
     expect(await page.locator('.digit-keypad [inputmode]').count()).toBe(0);
   });
 
-  test('tapping outside the grid clears the selection and hides the keypad (US2/AC5, Edge Cases)', async ({
+  test('tapping outside the grid clears the selection and returns the keypad to its disabled state (not hidden) (US2/AC6-AC7, Edge Cases)', async ({
     page,
   }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Start Custom Puzzle' }).click();
 
     const cell = page.locator('#sudoku-cell-0');
+    const keypad = page.locator('.digit-keypad');
     await cell.tap();
-    await expect(page.locator('.digit-keypad')).toBeVisible();
+    await expect(keypad).toBeVisible();
     await expect(cell).toHaveAttribute('aria-selected', 'true');
+    await expect(keypad.getByRole('button', { name: 'Enter 5' })).toBeEnabled();
 
     // Tap genuinely blank page background (the heading), not any button/link
     // and not the grid or keypad itself.
     await page.locator('h1').tap();
 
-    await expect(page.locator('.digit-keypad')).toHaveCount(0);
+    // 2026-09-14 Clarification (FR-003/FR-003c): the keypad stays visible
+    // and returns to its dimmed/disabled state instead of disappearing.
+    await expect(keypad).toBeVisible();
+    await expect(keypad.getByRole('button', { name: 'Enter 5' })).toBeDisabled();
     await expect(cell).toHaveAttribute('aria-selected', 'false');
     await expect(page.locator('[aria-selected="true"]')).toHaveCount(0);
   });
@@ -188,8 +197,29 @@ test.describe('US2 — Enter custom digits by touch', () => {
     await expect(page.locator('#sudoku-cell-1')).toHaveText('5');
     await expect(page.locator('#sudoku-cell-1')).toHaveClass(/conflict/);
   });
-});
 
+  test('a tap on a disabled (non-interactive) keypad button produces no digit entry (SC-003 exclusion)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Start Custom Puzzle' }).click();
+
+    // No cell selected yet: the keypad is visible but disabled (FR-003c).
+    const keypad = page.locator('.digit-keypad');
+    const enterFiveButton = keypad.getByRole('button', { name: 'Enter 5' });
+    await expect(keypad).toBeVisible();
+    await expect(enterFiveButton).toBeDisabled();
+
+    // A disabled button does not dispatch click/tap events at all; force the
+    // attempt to confirm no cell anywhere receives a mutation as a result.
+    await enterFiveButton.click({ force: true }).catch(() => {});
+
+    const filledCells = await page
+      .locator('.sudoku-cell')
+      .evaluateAll((cells) => cells.filter((cell) => (cell.textContent ?? '').trim() === '5').length);
+    expect(filledCells).toBe(0);
+  });
+});
 
 test.describe('US3 — Use all existing features on mobile', () => {
   test.use({ viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true });

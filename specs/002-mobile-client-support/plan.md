@@ -15,11 +15,13 @@ even though the grid itself already scales down (`board.component.scss`); and
 (2) digit entry only works via a physical-keyboard `keydown` listener on the
 grid (`BoardComponent.onGridKeydown`) — there is no touch-friendly way to enter
 a digit. This feature adds a new `DigitKeypadComponent` (on-screen 1-9 + clear
-keypad, ≥44x44px CSS-pixel touch targets, ARIA-labeled) that appears near the
-selected cell on mobile-width viewports and calls the existing
-`PuzzleStore.setCellValue`/`selectCell` methods — no changes to the store
-contract are needed. Physical-keyboard entry continues to work unchanged
-(already satisfies FR-003a). Responsive CSS breakpoints are added to
+keypad, ≥44x44px CSS-pixel touch targets, ARIA-labeled) that **always renders**
+on mobile-width viewports (2026-09-14 Clarification), so users always see the
+alternative, keyboard-free entry method — it is shown dimmed/disabled until a
+non-given cell is selected, at which point it becomes interactive and calls
+the existing `PuzzleStore.setCellValue`/`selectCell` methods — no changes to
+the store contract are needed. Physical-keyboard entry continues to work
+unchanged (already satisfies FR-003a). Responsive CSS breakpoints are added to
 `app.component.scss` (currently empty) so the layout stacks and remains usable
 from 360px phone widths through tablet and existing desktop widths.
 
@@ -57,7 +59,10 @@ keyboard (Edge Cases); physical/paired keyboard entry MUST keep working on
 mobile (FR-003a) — already true via the existing `onGridKeydown` handler, so
 no change needed there; keypad and cells MUST be ARIA-labeled for assistive
 technology (FR-003b) — cells already are (`board.component.html`), the new
-keypad buttons must be too.
+keypad buttons must be too; keypad MUST always render on compact viewports
+regardless of selection, using a dimmed/`disabled` visual state (not hidden)
+when no editable cell is selected (FR-003, FR-003c; 2026-09-14
+Clarification).
 
 **Scale/Scope**: UI-only extension of the existing single-page app — one new
 feature component (`digit-keypad`), CSS breakpoint additions to
@@ -147,7 +152,7 @@ No violations — table omitted.
 | II. Browser-Native Client-Side Application | `data-model.md` confirms no new persisted entities/backend calls — the keypad is a pure client-side UI addition reading/writing only the existing in-memory `PuzzleStore`. | PASS |
 | III. Test-First Solver Correctness (NON-NEGOTIABLE) | No solver/validator logic is touched by this design; `quickstart.md`'s automated checks only add UI/e2e coverage, leaving the existing test-first solver suite untouched and authoritative. | PASS (N/A for new code) |
 | IV. Responsive Performance | `contracts/digit-keypad.md` requires synchronous, non-debounced calls into the already non-blocking `setCellValue`/`solveAll`/`solveNextDigit` methods — no new main-thread blocking work is introduced. | PASS |
-| V. Accessible, Usable Interface | `contracts/digit-keypad.md` mandates `aria-label`s per button, ≥44x44px touch targets, no reliance on the native virtual keyboard, and preserves the existing keyboard-operable path (`onGridKeydown`) untouched; `quickstart.md` includes an explicit accessibility verification step. | PASS |
+| V. Accessible, Usable Interface | `contracts/digit-keypad.md` mandates `aria-label`s per button, ≥44x44px touch targets, no reliance on the native virtual keyboard, an always-visible keypad with a native-`disabled`/dimmed (not hidden) state when no editable cell is selected (2026-09-14 Clarification), and preserves the existing keyboard-operable path (`onGridKeydown`) untouched; `quickstart.md` includes an explicit accessibility verification step. | PASS |
 
 No violations identified after design; Complexity Tracking table remains not
 required.
