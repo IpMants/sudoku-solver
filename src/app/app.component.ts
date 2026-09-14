@@ -13,8 +13,11 @@ import { PuzzleStore } from './core/state/puzzle-store';
  * the example picker, board, and solve-controls feature components. Also
  * hosts the "start custom puzzle" entry point (FR-003, US3), which presents
  * a blank 9x9 grid for manual entry, and the on-screen `DigitKeypadComponent`
- * (US2), which renders nothing (and takes no layout space) on non-compact
- * viewports or while no editable cell is selected.
+ * (US2), which always renders on compact (mobile) viewports regardless of
+ * cell selection (2026-09-14 Clarification, FR-003/FR-003c) — shown in a
+ * dimmed/disabled state until an editable (non-`given`) cell is selected —
+ * and renders nothing (and takes no layout space) only on non-compact
+ * (desktop-width) viewports.
  */
 @Component({
   selector: 'app-root',
@@ -47,11 +50,13 @@ export class AppComponent implements OnInit {
   /**
    * Clears the current cell selection when the user taps/clicks on truly
    * "blank" page background — i.e. anywhere that is not the grid itself,
-   * not the on-screen keypad, and not any button/link control (US2/AC5,
-   * Edge Cases: "tap outside the grid... the keypad follows the newly
-   * selected cell (or hides if no cell is selected)"). Deliberately does
-   * NOT clear the selection on clicks that land on a button/link (e.g.
-   * "Solve Next Digit", "Reset", an example-picker item), since
+   * not the on-screen keypad, and not any button/link control (US2/AC6-AC7,
+   * Edge Cases: tapping outside the grid or deselecting the current cell
+   * MUST leave the on-screen keypad visible but return it to its
+   * dimmed/disabled state, without leaving stray input elements on screen —
+   * 2026-09-14 Clarification, FR-003c). Deliberately does NOT clear the
+   * selection on clicks that land on a button/link (e.g. "Solve Next
+   * Digit", "Reset", an example-picker item), since
    * `PuzzleStore.selectCell`'s contract (FR-013 / US5, `001-sudoku-solver`)
    * already requires the selection to be preserved across those in-place
    * actions — only genuinely "outside" taps should dismiss it.

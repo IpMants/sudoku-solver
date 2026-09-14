@@ -15,14 +15,14 @@ import type { Puzzle } from '../../core/models/puzzle'; // see 001 data-model.md
 
 @Component({ selector: 'app-digit-keypad', /* ... */ })
 export class DigitKeypadComponent {
-  /** Current puzzle, used to derive visibility and the target cell (FR-003). */
+  /** Current puzzle, used to derive interactivity and the target cell (FR-003, FR-003c). */
   readonly puzzle$: Observable<Puzzle>;
 
   /**
    * True when the viewport matches the "compact" breakpoint used to decide
-   * whether the on-screen keypad should render at all (research.md:
+   * whether the on-screen keypad renders at all (research.md:
    * CSS-breakpoint decision). Desktop-width viewports never render the
-   * keypad, even if a cell is selected, since the physical keyboard path
+   * keypad, regardless of selection, since the physical keyboard path
    * (FR-003a) already works there.
    */
   readonly isCompactViewport$: Observable<boolean>;
@@ -30,14 +30,15 @@ export class DigitKeypadComponent {
   /**
    * Handles a tap on digit button `digit` (1-9): forwards to
    * `PuzzleStore.setCellValue(targetCellIndex, digit)` for the currently
-   * selected non-given cell. No-op if no non-given cell is selected.
+   * selected non-given cell. Unreachable (button `disabled`) when no
+   * non-given cell is selected.
    */
   onDigitTap(digit: number): void;
 
   /**
    * Handles a tap on the "Clear" button: forwards to
-   * `PuzzleStore.setCellValue(targetCellIndex, null)`. No-op if no
-   * non-given cell is selected.
+   * `PuzzleStore.setCellValue(targetCellIndex, null)`. Unreachable (button
+   * `disabled`) when no non-given cell is selected.
    */
   onClearTap(): void;
 }
@@ -45,10 +46,15 @@ export class DigitKeypadComponent {
 
 ### Behavioral guarantees
 
-- MUST render (be visible / not `aria-hidden`) only when
-  `isCompactViewport$` emits `true` AND `puzzle.selectedIndex` references a
-  cell whose `origin !== 'given'` (FR-003, FR-002; Key Entities: On-Screen
-  Keypad).
+- MUST render (be present in the DOM, occupy layout space, and be reachable
+  by assistive technology) whenever `isCompactViewport$` emits `true`,
+  **regardless of** `puzzle.selectedIndex` (FR-003; 2026-09-14 Clarification:
+  the alternative touch entry method must always be visible on mobile).
+- MUST be interactive (every button enabled, no dimmed styling) only while
+  `puzzle.selectedIndex` references a cell whose `origin !== 'given'`;
+  otherwise every button MUST carry the native `disabled` attribute and a
+  dimmed visual style, while the keypad container remains visible and in the
+  accessibility tree (FR-003c).
 - MUST NOT trigger the device's native virtual keyboard by any means (no
   hidden `<input>` focus, no `inputmode` attribute that summons a system
   keyboard) — satisfies the Edge Case "must not rely on the device's native
@@ -71,8 +77,9 @@ export class DigitKeypadComponent {
 
 | UI action | Component method | Store method invoked | Requirement(s) |
 |---|---|---|---|
-| User selects a non-given cell on a compact viewport | *(reactive to `puzzle$`/`isCompactViewport$`)* | *(none — keypad appears)* | FR-002, FR-003, FR-005 |
+| Page loads on a compact viewport (no cell selected yet) | *(reactive to `isCompactViewport$`)* | *(none — keypad renders dimmed/disabled)* | FR-003, FR-003c |
+| User selects a non-given cell on a compact viewport | *(reactive to `puzzle$`/`isCompactViewport$`)* | *(none — keypad becomes interactive)* | FR-002, FR-003, FR-003c, FR-005 |
 | User taps a digit (1-9) on the keypad | `onDigitTap(digit)` | `setCellValue(targetCellIndex, digit)` | FR-004, FR-006, FR-010 |
 | User taps "Clear" on the keypad | `onClearTap()` | `setCellValue(targetCellIndex, null)` | FR-004 |
-| User selects a different cell / deselects | *(reactive)* | *(none — keypad follows or hides)* | FR-005; Edge Cases |
+| User selects a different cell / deselects | *(reactive)* | *(none — keypad stays visible, becomes interactive/dimmed accordingly)* | FR-005, FR-003c; Edge Cases |
 | User types on a physical/paired keyboard on mobile | *(unaffected — `BoardComponent.onGridKeydown`)* | `setCellValue` | FR-003a |

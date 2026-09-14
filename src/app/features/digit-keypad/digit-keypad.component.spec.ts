@@ -6,10 +6,12 @@ import { ViewportService } from '../../core/state/viewport.service';
 import { of } from 'rxjs';
 
 /**
- * Covers contracts/digit-keypad.md's behavioral guarantees: visibility rules
- * (compact viewport + a selected non-given cell), digit-tap/clear-tap
- * forwarding to `PuzzleStore.setCellValue`, and ARIA labels on each button
- * (Mobile Client Support, US2: FR-002, FR-003, FR-003b, FR-004).
+ * Covers contracts/digit-keypad.md's behavioral guarantees: always-visible
+ * rendering on a compact viewport with a disabled/dimmed state when no
+ * editable cell is selected (2026-09-14 Clarification, FR-003/FR-003c),
+ * digit-tap/clear-tap forwarding to `PuzzleStore.setCellValue` only while
+ * interactive, and ARIA labels on each button (Mobile Client Support, US2:
+ * FR-002, FR-003, FR-003b, FR-003c, FR-004).
  */
 describe('DigitKeypadComponent', () => {
   let component: DigitKeypadComponent;
@@ -49,15 +51,22 @@ describe('DigitKeypadComponent', () => {
     expect(fixture.nativeElement.querySelector('.digit-keypad')).toBeNull();
   });
 
-  it('hides the keypad on a compact viewport when no cell is selected', async () => {
+  it('renders the keypad already visible (but disabled) on a compact viewport before any cell is selected (FR-003, FR-003c)', async () => {
     configureCompactViewport(true);
     await createComponent();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.digit-keypad')).toBeNull();
+    const keypad = fixture.nativeElement.querySelector('.digit-keypad');
+    expect(keypad).not.toBeNull();
+    expect(keypad.getAttribute('aria-hidden')).toBeNull();
+    const buttons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.digit-keypad-button'),
+    );
+    expect(buttons.length).toBe(10);
+    expect(buttons.every((b) => b.disabled)).toBe(true);
   });
 
-  it('shows the keypad on a compact viewport when a non-given cell is selected', async () => {
+  it('becomes interactive (enabled) on a compact viewport when a non-given cell is selected', async () => {
     configureCompactViewport(true);
     await createComponent();
     store.startCustomPuzzle();
@@ -68,9 +77,13 @@ describe('DigitKeypadComponent', () => {
     expect(keypad).not.toBeNull();
     expect(keypad.getAttribute('role')).toBe('group');
     expect(keypad.getAttribute('aria-label')).toBe('Digit entry keypad');
+    const buttons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.digit-keypad-button'),
+    );
+    expect(buttons.every((b) => !b.disabled)).toBe(true);
   });
 
-  it('hides the keypad on a compact viewport when a given cell is selected', async () => {
+  it('remains visible but disabled on a compact viewport when a given cell is selected (FR-003c)', async () => {
     configureCompactViewport(true);
     await createComponent();
     store.loadRandomExample();
@@ -83,7 +96,12 @@ describe('DigitKeypadComponent', () => {
     store.selectCell(givenIndex!);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.digit-keypad')).toBeNull();
+    const keypad = fixture.nativeElement.querySelector('.digit-keypad');
+    expect(keypad).not.toBeNull();
+    const buttons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.digit-keypad-button'),
+    );
+    expect(buttons.every((b) => b.disabled)).toBe(true);
   });
 
   it('renders 1-9 digit buttons and a Clear button with correct aria-labels and forwards taps to setCellValue', async () => {
@@ -131,5 +149,31 @@ describe('DigitKeypadComponent', () => {
 
     expect(fixture.nativeElement.querySelector('input')).toBeNull();
     expect(fixture.nativeElement.querySelector('[inputmode]')).toBeNull();
+  });
+
+  it('a tap on a disabled (non-interactive) keypad button produces no PuzzleStore mutation (SC-003 exclusion)', async () => {
+    configureCompactViewport(true);
+    await createComponent();
+    store.startCustomPuzzle();
+    // No cell selected: the keypad is visible but disabled.
+    fixture.detectChanges();
+
+    const setCellValueSpy = spyOn(store, 'setCellValue').and.callThrough();
+    const buttons: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.digit-keypad-button'),
+    );
+    expect(buttons.every((b) => b.disabled)).toBe(true);
+
+    // A native `disabled` button does not dispatch `click` events at all, so
+    // this asserts the real DOM behavior the app relies on, not just the
+    // component method's own null-check guard.
+    buttons[4].click();
+    buttons[9].click();
+    fixture.detectChanges();
+
+    expect(setCellValueSpy).not.toHaveBeenCalled();
+    let firstCellValue: number | null | undefined;
+    store.puzzle$.subscribe((puzzle) => (firstCellValue = puzzle.cells[0].value));
+    expect(firstCellValue).toBeNull();
   });
 });

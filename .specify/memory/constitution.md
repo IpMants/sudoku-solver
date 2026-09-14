@@ -1,10 +1,14 @@
 <!--
 Sync Impact Report
-- Version change: none (template) → 1.0.0
-- Modified principles: n/a (initial ratification)
-- Added sections: Core Principles (I-V), Technology & Architecture Constraints,
-  Development Workflow & Quality Gates, Governance
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: none (Core Principles I-V unchanged)
+- Added sections: none (no new top-level section); materially expanded
+  "Development Workflow & Quality Gates" with a Release Versioning & Commit
+  Conventions subsection
 - Removed sections: none
+- Details: added project-wide requirements that releases follow Semantic
+  Versioning (MAJOR.MINOR.PATCH) and that commits follow the Conventional
+  Commits format, per explicit user request.
 - Templates requiring updates: none tracked in this repo yet (no dependent
   plan/spec/tasks templates found under .specify/templates at time of writing);
   re-check when those templates are introduced.
@@ -73,6 +77,21 @@ Principle I). Reviewers MUST reject changes that block the browser UI thread
 noticeably (see Principle IV) or that remove keyboard/ARIA accessibility (see
 Principle V) without an equivalent replacement.
 
+### Release Versioning & Commit Conventions
+
+The project MUST use Semantic Versioning (MAJOR.MINOR.PATCH, per semver.org) for
+all releases/tags: MAJOR for incompatible/breaking changes to the solved
+behavior or public UI contract, MINOR for backward-compatible feature additions,
+PATCH for backward-compatible bug fixes and non-functional changes. All commits
+MUST follow the Conventional Commits format (`<type>[optional scope]: <description>`,
+e.g. `feat(keypad): add mobile touch entry`, `fix(solver): correct backtracking
+edge case`, `docs: update quickstart`), using `feat`/`fix` types to drive
+automated version bumps and changelog generation, and a `BREAKING CHANGE:` footer
+(or `!` after the type/scope) for any MAJOR-triggering change. Rationale: a
+consistent, machine-parseable commit history and versioning scheme keeps release
+notes accurate and lets contributors and tooling (e.g., changelog generators)
+determine the correct next version without manual guesswork.
+
 ## Governance
 
 This constitution supersedes other informal practices for this project. Amendments
@@ -84,4 +103,4 @@ templates (plan, spec, tasks) when those exist in this repository. All reviews a
 pull requests MUST verify compliance with the principles above; unjustified
 complexity or deviations MUST be flagged and resolved before merge.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-09 | **Last Amended**: 2026-09-09
+**Version**: 1.1.0 | **Ratified**: 2026-09-09 | **Last Amended**: 2026-09-14

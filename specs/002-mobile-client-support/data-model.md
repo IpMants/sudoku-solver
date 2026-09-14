@@ -29,17 +29,24 @@ See `specs/001-sudoku-solver/data-model.md` for full definitions:
 | Field | Type | Notes |
 |---|---|---|
 | `isCompactViewport` | boolean | Derived from a CSS breakpoint match (media query or `BreakpointObserver`); determines whether the keypad renders at all (research.md: CSS-breakpoint decision, not user-agent sniffing). Not persisted; recomputed on resize/orientation change. |
-| `targetCellIndex` | integer (0-80), optional | Mirrors `Puzzle.selectedIndex` for the currently selected **non-given** cell; `undefined` when no non-given cell is selected (keypad hidden) or when the selected cell is `given` (keypad hidden — given cells are not editable, matching `PuzzleStore.setCellValue`'s existing rejection of edits to `given` cells). |
+| `targetCellIndex` | integer (0-80), optional | Mirrors `Puzzle.selectedIndex` for the currently selected **non-given** cell; `undefined` when no non-given cell is selected, or when the selected cell is `given`. Determines the keypad's *interactive* (vs. dimmed/disabled) state — not its visibility (revised 2026-09-14: the keypad's rendering no longer depends on this field, only its interactivity does). |
 
 **Validation rules**:
-- The keypad MUST render only when `isCompactViewport === true` AND
-  `targetCellIndex` is defined AND the cell at `targetCellIndex` has
-  `origin !== 'given'`.
+- The keypad MUST render (i.e., be present, non-`aria-hidden`, and occupy
+  layout space) whenever `isCompactViewport === true`, regardless of
+  `targetCellIndex` (2026-09-14 clarification: the alternative entry method
+  must always be visible on mobile).
+- The keypad MUST be interactive (buttons not `disabled`, no dimmed style)
+  only when `targetCellIndex` is defined AND the cell at `targetCellIndex`
+  has `origin !== 'given'`; otherwise every button MUST be `disabled` and
+  visually dimmed, while remaining present in the accessibility tree.
 - Tapping a digit button (1-9) MUST call `PuzzleStore.setCellValue
   (targetCellIndex, digit)`; tapping "Clear" MUST call
   `PuzzleStore.setCellValue(targetCellIndex, null)`. Neither action reads or
   writes any field beyond what `setCellValue` already validates
-  (`data-model.md`'s existing rule that `given` cells reject edits).
+  (`data-model.md`'s existing rule that `given` cells reject edits). Both
+  MUST be no-ops (unreachable, since the buttons are `disabled`) when
+  `targetCellIndex` is undefined.
 - No new `Puzzle` or `Cell` state transition is introduced; all transitions
   remain exactly as documented in `specs/001-sudoku-solver/data-model.md`.
 

@@ -29,25 +29,38 @@ This document records the rationale behind the remaining technical decisions.
   require an app-controlled on-screen keypad, not the device's native
   keyboard.
 
-## Decision: Keypad visibility/placement via CSS breakpoint + `selectedIndex`, not device/user-agent detection
+## Decision: Keypad rendering via CSS breakpoint (always-on); interactivity gated by `selectedIndex`
 
-- **Decision**: Show the on-screen keypad whenever a non-given cell is
-  selected AND the viewport matches a "compact" CSS breakpoint (max-width
+- **Decision (revised 2026-09-14 per Clarifications)**: Render the on-screen
+  keypad whenever the viewport matches a "compact" CSS breakpoint (max-width
   consistent with the ≤~768px tablet/phone range agreed in Clarifications),
-  implemented with a CSS media query (or Angular CDK `BreakpointObserver` bound
-  to the same breakpoint) rather than `navigator.userAgent` sniffing.
-- **Rationale**: Per Clarifications, the experience must be "a single
-  responsive layout (no separate mobile app)" — the same page adapts by
-  viewport size, which also correctly covers tablets in landscape and desktop
-  browsers resized narrow, without fragile user-agent string parsing. This
-  also means desktop users with touch-capable laptops still see the
-  appropriate input method for their current window size.
+  **regardless of whether a cell is selected** — implemented with a CSS media
+  query (or Angular CDK `BreakpointObserver` bound to the same breakpoint)
+  rather than `navigator.userAgent` sniffing. Whether the keypad is
+  *interactive* (vs. visually dimmed/`disabled`) is a separate, second
+  condition: interactive only while `puzzle.selectedIndex` references a cell
+  whose `origin !== 'given'`.
+- **Rationale**: Per the 2026-09-14 clarification, users on mobile must
+  always be able to see that a keyboard-free entry method exists, without
+  first having to select a cell to discover it — this reduces first-time-use
+  confusion and matches the request that "the alternative method [...] always
+  show[s]." Splitting *rendering* (breakpoint-only) from *interactivity*
+  (selection-dependent) keeps the existing `PuzzleStore` contract and
+  `setCellValue`/`selectCell` reuse from the prior decision unchanged; only
+  the component's own view-state derivation changes (`visible` becomes
+  breakpoint-only, a new `interactive`/`disabled` flag is added). Per
+  Clarifications, the experience must still be "a single responsive layout
+  (no separate mobile app)" — the same page adapts by viewport size, which
+  also correctly covers tablets in landscape and desktop browsers resized
+  narrow, without fragile user-agent string parsing.
 - **Alternatives considered**: `navigator.userAgent`/`navigator.maxTouchPoints`
   detection — rejected as unreliable (spoofable, doesn't reflect window size)
-  and explicitly not what "single responsive layout" calls for; always
-  showing the keypad on all viewport sizes — rejected because it would add
-  unnecessary UI clutter on desktop where the physical keyboard already works
-  well (FR-003a preserves that path everywhere).
+  and explicitly not what "single responsive layout" calls for; leaving taps
+  on a disabled keypad as silent no-ops with no visual state change —
+  rejected during clarification in favor of an explicit dimmed/disabled
+  visual state, since a silently inert control risks users thinking the
+  keypad is broken; auto-selecting the first empty cell on tap — rejected as
+  a surprising, non-obvious side effect for a simple digit tap.
 
 ## Decision: Keypad positioning follows the selected cell within the viewport (no native browser keyboard involved)
 
@@ -68,9 +81,12 @@ This document records the rationale behind the remaining technical decisions.
   precise per-cell popover placement (which would need to recompute on every
   selection and handle 81 different anchor points), and without the fixed-
   position overlay's failure mode of blocking taps on the controls beneath
-  it. The tradeoff is that the page's content shifts down when the keypad
-  appears/disappears; this was judged an acceptable, and more correct,
-  tradeoff than blocking real taps.
+  it. Since the 2026-09-14 clarification made the keypad always-rendered on
+  compact viewports (see the visibility decision above), it no longer
+  appears/disappears at all — it occupies a stable slot in the layout from
+  first paint, eliminating the earlier "content shifts down when the keypad
+  appears/disappears" tradeoff entirely, in addition to avoiding the overlap
+  bug.
 - **Alternatives considered**: A `position: fixed` bottom panel (the
   original decision) — rejected after e2e testing revealed it intercepts
   pointer events meant for controls it overlaps. CDK Overlay popover
@@ -81,18 +97,30 @@ This document records the rationale behind the remaining technical decisions.
 
 ## Decision: ARIA labeling for the keypad matches the existing cell-labeling pattern
 
-- **Decision**: Each keypad button gets `aria-label="Enter {digit}"` (and
-  `aria-label="Clear cell"` for the clear button); the keypad container gets
-  `role="group"` with an `aria-label="Digit entry keypad"`, and it becomes
-  `aria-hidden`/removed from the tab order when no non-given cell is selected.
+- **Decision (revised 2026-09-14)**: Each keypad button gets `aria-label="Enter
+  {digit}"` (and `aria-label="Clear cell"` for the clear button); the keypad
+  container gets `role="group"` with an `aria-label="Digit entry keypad"`.
+  Since the keypad now always renders on compact viewports, it is **never**
+  `aria-hidden`/removed from the tab order; instead, each button gets the
+  native `disabled` attribute (which already conveys "not currently
+  interactive" to assistive technology without hiding the control) whenever
+  no editable cell is selected, and a `dimmed`/reduced-opacity visual style
+  reinforces the same state sighted users.
 - **Rationale**: Mirrors the existing `board.component.html` pattern of
   descriptive `aria-label`s per interactive element (Constitution Principle V,
   already established precedent in this codebase) and directly satisfies
-  FR-003b for the newly introduced keypad.
+  FR-003b for the newly introduced keypad. Using `disabled` (rather than
+  `aria-hidden` or removal) keeps the keypad discoverable by screen-reader
+  users who explore the page before selecting a cell — consistent with the
+  "always show the alternative method" clarification — while still
+  communicating that it is not yet actionable.
 - **Alternatives considered**: Relying on visible text alone ("1", "2", ...)
   with no `aria-label` — rejected as insufficient for screen reader users, who
   would otherwise hear only the raw digit without context that it acts on the
-  currently selected cell.
+  currently selected cell. Keeping the earlier `aria-hidden`-when-empty
+  approach — rejected because it would make the always-visible keypad
+  invisible to assistive technology exactly when the clarification requires
+  it to be discoverable.
 
 ## Decision: Playwright device emulation for mobile e2e coverage
 
